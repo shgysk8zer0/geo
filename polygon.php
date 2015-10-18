@@ -2,8 +2,7 @@
 namespace shgysk8zer0\Geo;
 class Polygon
 {
-	use \shgysk8zer0\Core_API\Traits\Magic_Methods;
-	const MAGIC_PROPERTY = '_points';
+	use Traits\PIP;
 
 	const MAX_COORD = 360;
 
@@ -15,8 +14,6 @@ class Polygon
 	 * @var array
 	 */
 	public $coords = array();
-
-	private $_points = array();
 
 	/**
 	 * Creates a polygon by defining sets of Coords
@@ -36,51 +33,14 @@ class Polygon
 		}
 	}
 
+	/**
+	 * Converts Polygon to an array of point (JSON happens to be good format)
+	 *
+	 * @return string A JSON encoded string of coordinates
+	 */
 	public function __toString()
 	{
 		return json_encode($this->coords);
-	}
-
-	/**
-	 * Performs a check if point is in bounding rectangle, then if it lies in polygon
-	 *
-	 * @param  Point $coords [description]
-	 *
-	 * @return bool             [description]
-	 */
-	public function containsPoint(Point $coords)
-	{
-		return $this->isInBounds($coords) and $this->_containsPoints($coords);
-	}
-
-	/**
-	 * Protected function to check whether a point lies inside of a polygon
-	 *
-	 * @param  Point $coords [description]
-	 *
-	 * @return bool             [description]
-	 */
-	protected function _containtsPoints(Point $coords)
-	{
-		return true;
-	}
-
-	/**
-	 * A quick and rough estimate to determine if Coords are in a rectangle
-	 * defined by the min & max X & Y coordinates of the polygon
-	 *
-	 * @param  Coords $coords Coordinates to check
-	 *
-	 * @return [type]         [description]
-	 */
-	public function isInBounds(Point $coords)
-	{
-		list($max_x, $min_x, $max_y, $min_y) = $this->getRectBounds();
-
-		return (
-			$coords->x >= $min_x and $coords->x <= $max_x
-			and $coords->y >= $min_y and $coords->y <= $max_y
-		);
 	}
 
 	public function getRectBounds()
@@ -103,6 +63,13 @@ class Polygon
 		}, $this->coords);
 	}
 
+	/**
+	 * Create an SVG from a Polygon
+	 *
+	 * @param  array  $attrs Array of attributes to set on <polygon>
+	 *
+	 * @return \DOMElement   The resulting SVG
+	 */
 	public function drawSVG(array $attrs = array())
 	{
 		$points = array_map('strval', $this->coords);
