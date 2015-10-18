@@ -105,14 +105,14 @@ class Polygon
 
 	public function drawSVG(array $attrs = array())
 	{
-		$dom = new \shgysk8zer0\DOM\XML('svg');
-		$polygon = $dom->documentElement->append('polygon', null, $attrs);
 		$points = array_map('strval', $this->coords);
 		list($max_x, $min_x, $max_y, $min_y) = $this->getRectBounds();
-		$dom->documentElement->version = 1.1;
-		$dom->documentElement->xmlns = 'http://www.w3.org/2000/svg';
-		$dom->viewport = "$min_x $min_y $max_x $max_y";
-		$polygon->points = join(' ', $points);
-		return $dom->documentElement;
+
+		$svg = new \shgysk8zer0\DOM\SVG(['viewport' => "$min_x $min_y $max_x $max_y"]);
+		$polygon = $svg->createElement('polygon');
+		$svg->documentElement->appendChild($polygon);
+		$attrs['points'] = join(' ', $points);
+		array_map([$polygon, 'setAttribute'], array_keys($attrs), array_values($attrs));
+		return $svg->documentElement;
 	}
 }
